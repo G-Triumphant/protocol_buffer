@@ -1,0 +1,370 @@
+syntax = "proto2";
+package avatarx.proto;
+
+message Float3 {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+enum AnimationState {
+  CELL_ANIMATION_STATE_NONE = 0;
+  CELL_ANIMATION_STATE_IDLE = 1;
+  CELL_ANIMATION_STATE_WALK = 2;
+}
+
+// enum PrivateAudioState {
+//   ENABLE = 0;
+//   DISABLE = 1;
+//   NOT_IN_ROOM = 2;
+// }
+
+enum PublicAudioState {
+  ENABLE = 0;
+  DISABLE = 1;
+  NOT_IN_ROOM = 2;
+}
+
+/**
+ * 旋转信息
+ */
+message Rotation {
+  required float x = 1;
+  required float y = 2;
+  required float z = 3;
+}
+
+message Navigation {
+  required Float3 position = 1;
+  required float orientation = 2;
+  required Float3 tilt_axis = 3;
+  required float tilt_angle = 4;
+  required AnimationState cur_state = 5;
+}
+
+/**
+ * 用户信息
+ */
+message UserInfo {
+  /**
+   * 用户所使用的形象ID
+   */
+  required string avatar_id = 1;
+  /**
+   * 用户临时唯一ID
+   */
+  required uint32 user_id = 2;
+  /**
+   * 用户位置
+   */
+  required Float3 position = 3;
+  /**
+   * 用户是否是公开房间的房主
+   */
+  required bool public_master = 4;
+  /**
+   * 用户是否是私有房间的房主
+   */
+  required bool private_master = 5;
+  /**
+   * 当前旋转
+   */
+  optional Navigation navigation = 7;
+  /**
+   * 公聊房间用户当前能否发声(是否闭麦)
+   */
+  required PublicAudioState public_audio = 8;
+}
+
+/**
+ * 登录请求
+ * 类型:request
+ * event:login
+ */
+message LoginRequest {
+  /**
+   * 用户所使用的形象ID
+   */
+  required string avatar_id = 1;
+}
+
+/**
+ * 登录请求
+ * 类型:response
+ * event:login
+ */
+message LoginResonse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+  /**
+   * 用户临时唯一ID
+   */
+  optional uint32 user_id = 3;
+}
+
+/**
+ * 音频状态切换
+ * 类型:request
+ * event:public_audio_state_change
+ */
+message PublicAudioStateChangeRequest {
+  /**
+   * 是否开启音频
+   */
+  required PublicAudioState public_audio = 1;
+}
+
+/**
+ * 音频状态切换
+ * 类型:response
+ * event:public_audio_state_change
+ */
+message PublicAudioStateChangeResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+}
+
+/**
+ * 创建房间
+ * 类型:request
+ * event:create_public_room
+ */
+message CreatePublicRoomRequest {
+  /**
+   * 用户所使用的形象ID
+   */
+  required string avatar_id = 1;
+}
+
+/**
+ * 创建房间
+ * 类型:response
+ * event:create_public_room
+ */
+message CreatePublicRoomResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+  /**
+   * 房间ID
+   */
+  optional string room_id = 3;
+}
+
+/**
+ * 移动(deprecated)
+ * 类型:request
+ * event:move
+ */
+message MoveRequest {
+  /**
+   * 位置
+   */
+  required Float3 position = 1;
+}
+
+/**
+ * 移动(deprecated)
+ * 类型:response
+ * event:move
+ */
+message MoveResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+}
+
+/**
+ * 移动提示(deprecated)
+ * 类型:notification
+ * event:move_notification
+ */
+message MoveNotification {
+  /**
+   * 加入的用户信息
+   */
+  required UserInfo user = 1;
+}
+
+/**
+ * 移动
+ * 类型:request
+ * event:user_state_sync
+ */
+message UserStateSyncRequest {
+  /**
+   * 位置
+   */
+  required Navigation navigation = 1;
+}
+
+/**
+ * 移动
+ * 类型:response
+ * event:user_state_sync
+ */
+message UserStateSyncResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+}
+
+/**
+ * 加入房间
+ * 类型:request
+ * event:join_public_room
+ */
+message JoinPublicRoomRequest {
+  /**
+   * 房间ID
+   */
+  required string room_id = 1;
+}
+
+/**
+ * 加入房间
+ * 类型:response
+ * event:join_public_room
+ */
+message JoinPublicRoomResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+  /**
+   * 声网RTC的token,用于加入房间
+   */
+  optional string agora_rtc_token = 3;
+  /**
+   * 声网的appid
+   */
+  optional string appid = 4;
+  /**
+   * 当前已在房间的用户信息
+   */
+  repeated UserInfo users = 5;
+}
+
+/**
+ * 加入房间
+ * 类型:notification
+ * event:join_public_room_notification
+ */
+message JoinPublicRoomNotification {
+  /**
+   * 加入的用户信息
+   */
+  required UserInfo user = 1;
+}
+
+/**
+ * 离开公开房间
+ * 类型:request
+ * event:leave_public_room
+ */
+message LeavePublicRoomRequest {}
+
+/**
+ * 离开公开房间
+ * 类型:response
+ * event:leave_public_room
+ */
+message LeavePublicRoomResponse {
+  /**
+   * 状态码,详见错误码文档
+   */
+  required int32 code = 1;
+  /**
+   * 错误信息,详见错误码文档
+   */
+  required string message = 2;
+}
+
+/**
+ * 当前房间用户信息同步
+ * 类型:notification
+ * event:user_sync_notification
+ */
+message UserSyncNotification {
+  /**
+   * 当前房间所有用户的信息
+   */
+  repeated UserInfo user = 1;
+}
+
+/**
+ * 房间解散(房主退出)
+ * 类型:notification
+ * event:disband_public_room_notification
+ */
+message DisbandPublicRoomNotification {}
+
+/**
+ * 加入私聊房间
+ * 类型:notification
+ * event:join_private_room_notification
+ */
+message JoinPrivateRoomNotification {
+  /**
+   * 声网RTC的token,用于加入房间
+   */
+  optional string agora_rtc_token = 3;
+  /**
+   * 声网的appid
+   */
+  optional string appid = 4;
+  /**
+   * 房间ID
+   */
+  required string room_id = 1;
+}
+
+/**
+ * 离开私聊房间
+ * 类型:notification
+ * event:leave_private_room_notification
+ */
+message LeavePrivateRoomNotification {}
+
+/**
+ * 私聊房主变更(原房主离开私聊房间)
+ * 类型:notification
+ * event:master_change_private_room_notification
+ */
+message MasterChangePrivateRoomNotification {
+  /**
+   * 新的房主ID
+   */
+  required uint32 user_id = 1;
+}
